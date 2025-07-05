@@ -14,7 +14,9 @@
 <body>
   <div id="cesiumContainer"></div>
   <script>
-    // 初期化
+    // Cesium ionのアクセストークン
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNTExZDBlNy05NWM2LTQ2NDgtYTk0My0xM2IyY2M4NWY0Y2MiLCJpZCI6MzE4Njc2LCJpYXQiOjE3NTE2Nzk0NTl9.kafr-dQhb-YDcWDVKNp1A6Mf5xzO_92HjczNLDmxlGE';
+
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: Cesium.createWorldTerrain(),
     });
