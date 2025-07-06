@@ -8,7 +8,8 @@ let geospatialLayer, myPointsLayer; // 各レイヤーのTHREE.Group
 
 // 地理院のOBJファイルのパス (★★ここをダウンロードしたOBJファイルパスに置き換えてください★★)
 // 例: './data/your_geospatial_model.obj'
-const GEOSPATIAL_OBJ_PATH = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/male02/male02.obj'; // サンプルとしてThree.jsのOBJを使用
+//const GEOSPATIAL_OBJ_PATH = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/models/obj/male02/male02.obj'; // サンプルとしてThree.jsのOBJを使用
+const GEOSPATIAL_OBJ_PATH = './data/dem.obj'; // サンプルとしてThree.jsのOBJを使用
 
 const MY_POINTS_GEOJSON_PATH = './data/my_points.geojson';
 
