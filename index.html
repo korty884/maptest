@@ -20,12 +20,22 @@
   <script>
     Cesium.Ion.defaultAccessToken = '';
 
+    //const viewer = new Cesium.Viewer('cesiumContainer', {
+    //  terrainProvider: new Cesium.CesiumTerrainProvider({
+    //    url: "https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles",
+    //    requestWaterMask: true,
+    //    requestVertexNormals: true,
+    //  }),
+    //  imageryProvider: new Cesium.UrlTemplateImageryProvider({
+    //    url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
+    //    credit: '地理院地図',
+    //  }),
+    //  baseLayerPicker: false,
+    //  timeline: false,
+    //  animation: false
+    //});
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: new Cesium.CesiumTerrainProvider({
-        url: "https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles",
-        requestWaterMask: true,
-        requestVertexNormals: true,
-      }),
+      terrainProvider: new Cesium.EllipsoidTerrainProvider(), // 平坦な地形
       imageryProvider: new Cesium.UrlTemplateImageryProvider({
         url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
         credit: '地理院地図',
@@ -34,6 +44,7 @@
       timeline: false,
       animation: false
     });
+
 
     viewer.scene.globe.enableLighting = true;
 
