@@ -87,6 +87,10 @@
     </div>
 
     <script>
+        // CesiumJSのアセットのパスを明示的に設定します。
+        // これにより、CDNからロードされたCesiumJSが、必要な画像やWeb Workerなどのアセットを正しく見つけられるようになります。
+        Cesium.buildModuleUrl.setBaseUrl('https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/');
+
         // CesiumJSのアクセストークンを設定します。
         // これはCesium Ionのデフォルトのベースマップなどを利用する場合に必要ですが、
         // 地理院地図のタイルのみを利用する場合は必須ではありません。
