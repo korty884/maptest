@@ -36,9 +36,13 @@
     //});
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: new Cesium.EllipsoidTerrainProvider(), // 平坦な地形
+      //imageryProvider: new Cesium.UrlTemplateImageryProvider({
+      //  url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
+      //  credit: '地理院地図',
+      //}),
       imageryProvider: new Cesium.UrlTemplateImageryProvider({
-        url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
-        credit: '地理院地図',
+        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        credit: '© OpenStreetMap contributors'
       }),
       baseLayerPicker: false,
       timeline: false,
