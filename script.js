@@ -1,5 +1,5 @@
 // 修正点: 必要なThree.jsモジュールを直接インポートする
-import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.118.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/OBJLoader.js';
 let scene, camera, renderer, controls;
