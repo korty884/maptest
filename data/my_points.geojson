@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "名古屋駅",
+        "description": "愛知県の主要駅"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [136.8816, 35.1709]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "名古屋城",
+        "description": "名古屋のシンボル"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [136.8996, 35.1857]
+      }
+    }
+  ]
+}

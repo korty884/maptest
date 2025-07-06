@@ -1,0 +1,54 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: sans-serif;
+    color: #eee;
+    background-color: #333;
+}
+
+#canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+#info-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 8px;
+    z-index: 10;
+    max-width: 300px;
+}
+
+#info-panel h1 {
+    font-size: 1.2em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.layer-control {
+    margin-bottom: 10px;
+}
+
+.layer-control label {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.layer-control input[type="checkbox"] {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+}
+
+#info-panel p {
+    font-size: 0.8em;
+    color: #bbb;
+    margin-top: 15px;
+    line-height: 1.4;
+}

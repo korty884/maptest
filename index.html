@@ -1,30 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>3D Map with Cesium</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <style>
-    html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地理院3D地図 + 独自データレイヤー</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="cesiumContainer"></div>
-  <script>
-    // Cesium ionのアクセストークン
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNTExZDBlNy05NWM2LTQ2NDgtYTk0My0xM2IyY2M4NWY0Y2MiLCJpZCI6MzE4Njc2LCJpYXQiOjE3NTE2Nzk0NTl9.kafr-dQhb-YDcWDVKNp1A6Mf5xzO_92HjczNLDmxlGE';
+    <div id="info-panel">
+        <h1>3D地図レイヤー表示</h1>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="toggleGeospatial" checked> 地理院3D地図 (OBJ)
+            </label>
+        </div>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="toggleMyPoints"> 独自POI (GeoJSON)
+            </label>
+        </div>
+        <p>※ Three.jsでOBJモデルを読み込むデモです。地理院OBJデータは、地理院のサイトからダウンロードして、`script.js`内のパスを修正してください。</p>
+        <p>※ 地理院のWebGL用データは、OBJとは異なる形式であるため、別途ローダーや表示ロジックが必要です。</p>
+    </div>
+    <canvas id="canvas"></canvas>
 
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.createWorldTerrain(),
-    });
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+        import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
+        import { OBJLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/OBJLoader.js';
 
-    // 東京の位置にカメラを移動
-    viewer.camera.flyTo({
-      destination : Cesium.Cartesian3.fromDegrees(139.6917, 35.6895, 1000.0)
-    });
-  </script>
+        // グローバルにアクセスできるようにTHREEオブジェクトをwindowに追加
+        window.THREE = THREE;
+        window.OrbitControls = OrbitControls;
+        window.OBJLoader = OBJLoader;
+
+        // 独自のスクリプトをロード
+        import './script.js';
+    </script>
 </body>
 </html>
