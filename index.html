@@ -24,18 +24,6 @@
     </div>
     <canvas id="canvas"></canvas>
 
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
-        import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
-        import { OBJLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/OBJLoader.js';
-
-        // グローバルにアクセスできるようにTHREEオブジェクトをwindowに追加
-        window.THREE = THREE;
-        window.OrbitControls = OrbitControls;
-        window.OBJLoader = OBJLoader;
-
-        // 独自のスクリプトをロード
-        import './script.js';
-    </script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
