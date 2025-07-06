@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>地理院地図 3Dビューア</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS CDN (バージョン指定に変更) -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
     <style>
         /* Interフォントのインポート */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -45,12 +45,28 @@
         .layer-control input[type="checkbox"] {
             transform: scale(1.2);
         }
+        /* ローディング表示用のスタイル */
+        #loadingOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            z-index: 1000;
+        }
     </style>
     <!-- CesiumJSのCSSとJavaScriptを読み込む -->
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
 </head>
 <body>
+    <div id="loadingOverlay">地図を読み込み中...</div>
     <div id="cesiumContainer"></div>
     <div id="controls" class="rounded-lg">
         <h2 class="text-lg font-bold mb-2">レイヤー切り替え</h2>
@@ -58,6 +74,12 @@
             <label>
                 <input type="checkbox" id="baseMapToggle" checked>
                 標準地図
+            </label>
+        </div>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="aerialPhotoToggle">
+                航空写真
             </label>
         </div>
         <div class="layer-control">
@@ -122,6 +144,9 @@
             });
             console.log('Cesium Viewer initialized successfully.'); // 成功ログ
 
+            // ローディングオーバーレイを非表示にする
+            document.getElementById('loadingOverlay').style.display = 'none';
+
             // 初期カメラ位置を設定 (地理院地図のURLから取得した緯度経度とズームレベルを使用)
             const initialLat = 35.13328136774088;
             const initialLon = 136.50278806686404;
@@ -137,7 +162,7 @@
                 destination: Cesium.Cartesian3.fromDegrees(initialLon, initialLat, zoomLevelToHeight(initialZoomLevel)),
                 orientation: {
                     heading: Cesium.Math.toRadians(0.0), // 北を向く
-                    pitch: Cesium.Math.toRadians(-30.0), // 少し下向き
+                    pitch: Cesium.Math.toRadians(-20.0), // 少し下向き (以前の -30.0 から調整)
                     roll: 0.0
                 }
             });
@@ -241,23 +266,8 @@
             errorDiv.style.zIndex = '100';
             errorDiv.innerText = '地図の読み込み中にエラーが発生しました。ブラウザのコンソールをご確認ください。';
             document.body.appendChild(errorDiv);
+            document.getElementById('loadingOverlay').style.display = 'none'; // エラー時はローディングを非表示
         }
     </script>
 </body>
 </html>
-```
-### 修正点
-
-* **エラーハンドリングの追加**: `Cesium.Viewer`の初期化処理を`try-catch`ブロックで囲みました。これにより、地図の読み込みに失敗した場合、ブラウザの開発者ツール（F12キーなどで開けます）のコンソールに詳細なエラーが表示されます。
-* **画面上へのエラーメッセージ表示**: もしエラーが発生した場合、ユーザーがすぐにわかるように、画面中央に赤いボックスでエラーメッセージが表示されるようにしました。
-
-### ご確認いただきたいこと
-
-1.  **ブラウザのキャッシュをクリア**: まず、ブラウザのキャッシュをクリアしてからGitHub Pagesのページを再度読み込んでみてください。古いJavaScriptファイルがキャッシュされていると、正しく動作しないことがあります。
-    * **Windows/Linux**: Ctrl + Shift + R または Ctrl + F5
-    * **Mac**: Cmd + Shift + R
-    * または、ブラウザの設定からキャッシュをクリアしてください。
-2.  **ブラウザのコンソールを確認**: 地図が表示されない場合、ブラウザの開発者ツールを開き、「Console」（コンソール）タブにエラーメッセージが表示されていないかご確認ください。もしエラーが表示されていれば、その内容を教えていただけますでしょうか。
-3.  **ネットワーク状況の確認**: 一時的なネットワークの問題や、地理院地図のタイルサーバー、またはCesiumJSのCDNにアクセスできない状況が発生している可能性も考えられます。しばらく時間を置いてから再度試す、別のネットワーク環境で試すなども有効です。
-
-お手数ですが、これらの手順をお試しいただき、状況をお知らせいただけますでしょ
