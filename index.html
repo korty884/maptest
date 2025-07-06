@@ -82,12 +82,7 @@
                 航空写真
             </label>
         </div>
-        <div class="layer-control">
-            <label>
-                <input type="checkbox" id="aerialPhotoToggle">
-                航空写真
-            </label>
-        </div>
+        <!-- 修正: aerialPhotoToggleの重複を削除 -->
         <div class="layer-control">
             <label>
                 <input type="checkbox" id="contourToggle">
@@ -129,6 +124,10 @@
                 terrainProvider: new Cesium.CesiumTerrainProvider({
                     url: 'https://cyberjapandata.gsi.go.jp/xyz/dem/' // 地理院地図のDEMタイル
                 }),
+                // レンダリングモードを設定 (地形表示の安定化のため)
+                requestRenderMode: true,
+                maximumRenderTimeChange: Infinity, // 常にレンダリングを試みる
+
                 // その他のUI要素を非表示（オプション）
                 geocoder: false,
                 homeButton: false,
@@ -154,15 +153,15 @@
 
             // ズームレベルを高さに変換するおおよその関数 (正確な変換ではありませんが、目安として)
             function zoomLevelToHeight(zoom) {
-                // 経験則に基づく変換。より正確な計算が必要な場合はCesiumのドキュメントを参照
-                return 60000000 / Math.pow(2, zoom);
+                // 経験則に基づく変換。以前より高い位置に設定
+                return 100000000 / Math.pow(2, zoom); // 以前の60000000から調整
             }
 
             viewer.camera.setView({
                 destination: Cesium.Cartesian3.fromDegrees(initialLon, initialLat, zoomLevelToHeight(initialZoomLevel)),
                 orientation: {
                     heading: Cesium.Math.toRadians(0.0), // 北を向く
-                    pitch: Cesium.Math.toRadians(-20.0), // 少し下向き (以前の -30.0 から調整)
+                    pitch: Cesium.Math.toRadians(-35.0), // 少し下向き (以前の -20.0 から調整)
                     roll: 0.0
                 }
             });
