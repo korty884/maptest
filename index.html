@@ -23,10 +23,10 @@
       imageryProvider: new Cesium.UrlTemplateImageryProvider({
         url : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OpenStreetMapタイルの正しいURL
         credit: '© OpenStreetMap contributors' // 著作権表示を含めることを推奨
-      }),
-      baseLayerPicker: true, // ベースレイヤー選択ウィジェットを非表示
-      timeline: false,        // タイムラインウィジェットを非表示
-      animation: false        // アニメーションウィジェットを非表示
+      })
+      //baseLayerPicker: true, // ベースレイヤー選択ウィジェットを非表示
+      //timeline: false,        // タイムラインウィジェットを非表示
+      //animation: false        // アニメーションウィジェットを非表示
     });
 
     viewer.scene.globe.enableLighting = true; // 地球のライティングを有効化
