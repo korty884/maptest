@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地理院地図 3Dビューア v0.3</title>
+    <title>地理院地図 3Dビューア v0.4</title>
     <!-- Tailwind CSS CDN (バージョン指定に変更) -->
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
     <style>
@@ -115,10 +115,10 @@
                     url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
                     credit: '国土地理院'
                 }),
-                // 3D地形を有効にする
-                terrainProvider: new Cesium.CesiumTerrainProvider({
-                    url: 'https://cyberjapandata.gsi.go.jp/xyz/dem/' // 地理院地図のDEMタイル
-                }),
+                // 3D地形を有効にする (この行をコメントアウトまたは削除)
+                // terrainProvider: new Cesium.CesiumTerrainProvider({
+                //     url: 'https://cyberjapandata.gsi.go.jp/xyz/dem/' // 地理院地図のDEMタイル
+                // }),
                 requestRenderMode: true,
                 maximumRenderTimeChange: Infinity,
 
