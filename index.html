@@ -1,30 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>3D Map with Cesium</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <style>
-    html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地理院地図 3Dビューア</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Interフォントのインポート */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* スクロールバーを非表示 */
+        }
+        #cesiumContainer {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        #controls {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .layer-control label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .layer-control input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+    </style>
+    <!-- CesiumJSのCSSとJavaScriptを読み込む -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
 </head>
 <body>
-  <div id="cesiumContainer"></div>
-  <script>
-    // Cesium ionのアクセストークン
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNTExZDBlNy05NWM2LTQ2NDgtYTk0My0xM2IyY2M4NWY0Y2MiLCJpZCI6MzE4Njc2LCJpYXQiOjE3NTE2Nzk0NTl9.kafr-dQhb-YDcWDVKNp1A6Mf5xzO_92HjczNLDmxlGE';
+    <div id="cesiumContainer"></div>
+    <div id="controls" class="rounded-lg">
+        <h2 class="text-lg font-bold mb-2">レイヤー切り替え</h2>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="baseMapToggle" checked>
+                標準地図
+            </label>
+        </div>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="aerialPhotoToggle">
+                航空写真
+            </label>
+        </div>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="contourToggle">
+                等高線
+            </label>
+        </div>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="landUseToggle">
+                土地利用図
+            </label>
+        </div>
+        <div class="layer-control">
+            <label>
+                <input type="checkbox" id="dem5aToggle">
+                色別標高図
+            </label>
+        </div>
+    </div>
 
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.createWorldTerrain(),
-    });
+    <script>
+        // CesiumJSのアクセストークンを設定します。
+        // これはCesium Ionのデフォルトのベースマップなどを利用する場合に必要ですが、
+        // 地理院地図のタイルのみを利用する場合は必須ではありません。
+        // Cesium.Ion.defaultAccessToken = 'YOUR_CESIUM_ION_ACCESS_TOKEN'; // 必要であれば設定
 
-    // 東京の位置にカメラを移動
-    viewer.camera.flyTo({
-      destination : Cesium.Cartesian3.fromDegrees(139.6917, 35.6895, 1000.0)
-    });
-  </script>
+        // Cesiumビューアを初期化
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+            // ベースレイヤーを非表示にし、地理院地図を自分で追加します
+            baseLayerPicker: false,
+            // デフォルトのImageryProviderを無効にする (401エラー対策)
+            imageryProvider: false,
+            // 3D地形を有効にする
+            terrainProvider: new Cesium.CesiumTerrainProvider({
+                url: 'https://cyberjapandata.gsi.go.jp/xyz/dem/' // 地理院地図のDEMタイル
+            }),
+            // その他のUI要素を非表示（オプション）
+            geocoder: false,
+            homeButton: false,
+            infoBox: false,
+            navigationHelpButton: false,
+            sceneModePicker: false,
+            animation: false,
+            timeline: false,
+            fullscreenButton: false,
+            vrButton: false,
+            selectionIndicator: false,
+            shadows: false,
+        });
+
+        // 初期カメラ位置を設定 (地理院地図のURLから取得した緯度経度とズームレベルを使用)
+        const initialLat = 35.13328136774088;
+        const initialLon = 136.50278806686404;
+        const initialZoomLevel = 15; // ズームレベルはカメラの高さに変換する必要があります
+
+        // ズームレベルを高さに変換するおおよその関数 (正確な変換ではありませんが、目安として)
+        function zoomLevelToHeight(zoom) {
+            // 経験則に基づく変換。より正確な計算が必要な場合はCesiumのドキュメントを参照
+            return 60000000 / Math.pow(2, zoom);
+        }
+
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(initialLon, initialLat, zoomLevelToHeight(initialZoomLevel)),
+            orientation: {
+                heading: Cesium.Math.toRadians(0.0), // 北を向く
+                pitch: Cesium.Math.toRadians(-30.0), // 少し下向き
+                roll: 0.0
+            }
+        });
+
+        // 地理院地図の各レイヤーを追加
+        // 標準地図 (初期表示)
+        const baseMapLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.UrlTemplateImageryProvider({
+                url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
+                credit: '国土地理院'
+            })
+        );
+        baseMapLayer.show = true; // 初期表示
+
+        // 航空写真
+        const aerialPhotoLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.UrlTemplateImageryProvider({
+                url: 'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+                credit: '国土地理院'
+            })
+        );
+        aerialPhotoLayer.show = false; // 初期非表示
+
+        // 等高線
+        const contourLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.UrlTemplateImageryProvider({
+                url: 'https://cyberjapandata.gsi.go.jp/xyz/cont/{z}/{x}/{y}.png',
+                credit: '国土地理院'
+            })
+        );
+        contourLayer.show = false; // 初期非表示
+
+        // 土地利用図
+        const landUseLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.UrlTemplateImageryProvider({
+                url: 'https://cyberjapandata.gsi.go.jp/xyz/lcomu/{z}/{x}/{y}.png',
+                credit: '国土地理院'
+            })
+        );
+        landUseLayer.show = false; // 初期非表示
+
+        // 色別標高図 (DEM5A) - これは地形の高さを示す色付きの地図です
+        const dem5aLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.UrlTemplateImageryProvider({
+                url: 'https://cyberjapandata.gsi.go.jp/xyz/dem5a/{z}/{x}/{y}.png',
+                credit: '国土地理院'
+            })
+        );
+        dem5aLayer.show = false; // 初期非表示
+
+        // レイヤー切り替えのイベントリスナーを設定
+        document.getElementById('baseMapToggle').addEventListener('change', function() {
+            baseMapLayer.show = this.checked;
+            // 標準地図がオンになったら航空写真をオフにする
+            if (this.checked) {
+                aerialPhotoLayer.show = false;
+                document.getElementById('aerialPhotoToggle').checked = false;
+            }
+        });
+
+        document.getElementById('aerialPhotoToggle').addEventListener('change', function() {
+            aerialPhotoLayer.show = this.checked;
+            // 航空写真がオンになったら標準地図をオフにする
+            if (this.checked) {
+                baseMapLayer.show = false;
+                document.getElementById('baseMapToggle').checked = false;
+            }
+        });
+
+        document.getElementById('contourToggle').addEventListener('change', function() {
+            contourLayer.show = this.checked;
+        });
+
+        document.getElementById('landUseToggle').addEventListener('change', function() {
+            landUseLayer.show = this.checked;
+        });
+
+        document.getElementById('dem5aToggle').addEventListener('change', function() {
+            dem5aLayer.show = this.checked;
+        });
+
+        // 建物データについて:
+        // 地理院地図の3D表示は独自の建物データを使用している可能性があります。
+        // CesiumJSで一般的な3D建物データを表示するには、3D Tiles形式のデータが必要です。
+        // 現在、地理院地図が公開している一般的な3D Tiles形式の建物データは確認できませんでした。
+        // もし建物データを追加したい場合は、OpenStreetMapのデータから3D Tilesを生成するか、
+        // 他の公開されている3D建物データセットを探す必要があります。
+        // この例では、地理院地図のImageryLayerとして提供されているものに限定しています。
+    </script>
 </body>
 </html>
