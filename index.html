@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地理院地図 3Dビューア v0.1</title>
+    <title>地理院地図 3Dビューア 0.2</title>
     <!-- Tailwind CSS CDN (バージョン指定に変更) -->
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
     <style>
@@ -61,9 +61,9 @@
             z-index: 1000;
         }
     </style>
-    <!-- CesiumJSのCSSとJavaScriptを読み込む -->
-    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+    <!-- CesiumJSのCSSとJavaScriptを読み込む (バージョンを1.80にダウングレード) -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.80/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.80/Build/Cesium/Cesium.js"></script>
 </head>
 <body>
     <div id="loadingOverlay">地図を読み込み中...</div>
@@ -82,7 +82,6 @@
                 航空写真
             </label>
         </div>
-        <!-- 修正: aerialPhotoToggleの重複を削除 -->
         <div class="layer-control">
             <label>
                 <input type="checkbox" id="contourToggle">
@@ -104,31 +103,25 @@
     </div>
 
     <script>
-        // CesiumJSのアセットのパスを明示的に設定します。
-        // これにより、CDNからロードされたCesiumJSが、必要な画像やWeb Workerなどのアセットを正しく見つけられるようになります。
-        Cesium.buildModuleUrl.setBaseUrl('https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/');
-
-        // CesiumJSのアクセストークンを設定します。
-        // これはCesium Ionのデフォルトのベースマップなどを利用する場合に必要ですが、
-        // 地理院地図のタイルのみを利用する場合は必須ではありません。
-        // Cesium.Ion.defaultAccessToken = 'YOUR_CESIUM_ION_ACCESS_TOKEN'; // 必要であれば設定
+        // CesiumJSのアセットのパスを明示的に設定します。(バージョンを1.80に合わせる)
+        Cesium.buildModuleUrl.setBaseUrl('https://cesium.com/downloads/cesiumjs/releases/1.80/Build/Cesium/');
 
         // Cesiumビューアを初期化
         try {
             const viewer = new Cesium.Viewer('cesiumContainer', {
-                // ベースレイヤーを非表示にし、地理院地図を自分で追加します
-                baseLayerPicker: false,
-                // デフォルトのImageryProviderを無効にする (401エラー対策)
-                imageryProvider: false,
+                baseLayerPicker: false, // ベースレイヤーピッカーを非表示
+                // 初期ベースマップを地理院地図の標準地図に直接設定
+                imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                    url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
+                    credit: '国土地理院'
+                }),
                 // 3D地形を有効にする
                 terrainProvider: new Cesium.CesiumTerrainProvider({
                     url: 'https://cyberjapandata.gsi.go.jp/xyz/dem/' // 地理院地図のDEMタイル
                 }),
-                // レンダリングモードを設定 (地形表示の安定化のため)
                 requestRenderMode: true,
-                maximumRenderTimeChange: Infinity, // 常にレンダリングを試みる
+                maximumRenderTimeChange: Infinity,
 
-                // その他のUI要素を非表示（オプション）
                 geocoder: false,
                 homeButton: false,
                 infoBox: false,
@@ -141,40 +134,26 @@
                 selectionIndicator: false,
                 shadows: false,
             });
-            console.log('Cesium Viewer initialized successfully.'); // 成功ログ
+            console.log('Cesium Viewer initialized successfully.');
 
             // ローディングオーバーレイを非表示にする
             document.getElementById('loadingOverlay').style.display = 'none';
 
-            // 初期カメラ位置を設定 (地理院地図のURLから取得した緯度経度とズームレベルを使用)
+            // 初期カメラ位置を設定 (名古屋付近の緯度経度と、非常に高い高度を設定)
             const initialLat = 35.13328136774088;
             const initialLon = 136.50278806686404;
-            const initialZoomLevel = 15; // ズームレベルはカメラの高さに変換する必要があります
-
-            // ズームレベルを高さに変換するおおよその関数 (正確な変換ではありませんが、目安として)
-            function zoomLevelToHeight(zoom) {
-                // 経験則に基づく変換。以前より高い位置に設定
-                return 100000000 / Math.pow(2, zoom); // 以前の60000000から調整
-            }
+            const initialHeight = 1000000; // 1000km上空から見下ろす
 
             viewer.camera.setView({
-                destination: Cesium.Cartesian3.fromDegrees(initialLon, initialLat, zoomLevelToHeight(initialZoomLevel)),
+                destination: Cesium.Cartesian3.fromDegrees(initialLon, initialLat, initialHeight),
                 orientation: {
-                    heading: Cesium.Math.toRadians(0.0), // 北を向く
-                    pitch: Cesium.Math.toRadians(-35.0), // 少し下向き (以前の -20.0 から調整)
+                    heading: Cesium.Math.toRadians(0.0),
+                    pitch: Cesium.Math.toRadians(-90.0), // 真上から見下ろす
                     roll: 0.0
                 }
             });
 
-            // 地理院地図の各レイヤーを追加
-            // 標準地図 (初期表示)
-            const baseMapLayer = viewer.imageryLayers.addImageryProvider(
-                new Cesium.UrlTemplateImageryProvider({
-                    url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
-                    credit: '国土地理院'
-                })
-            );
-            baseMapLayer.show = true; // 初期表示
+            // 地理院地図の各レイヤーを追加 (ベースマップは既に設定済みなので、ここでは追加しない)
 
             // 航空写真
             const aerialPhotoLayer = viewer.imageryLayers.addImageryProvider(
@@ -183,7 +162,7 @@
                     credit: '国土地理院'
                 })
             );
-            aerialPhotoLayer.show = false; // 初期非表示
+            aerialPhotoLayer.show = false;
 
             // 等高線
             const contourLayer = viewer.imageryLayers.addImageryProvider(
@@ -192,7 +171,7 @@
                     credit: '国土地理院'
                 })
             );
-            contourLayer.show = false; // 初期非表示
+            contourLayer.show = false;
 
             // 土地利用図
             const landUseLayer = viewer.imageryLayers.addImageryProvider(
@@ -201,33 +180,39 @@
                     credit: '国土地理院'
                 })
             );
-            landUseLayer.show = false; // 初期非表示
+            landUseLayer.show = false;
 
-            // 色別標高図 (DEM5A) - これは地形の高さを示す色付きの地図です
+            // 色別標高図 (DEM5A)
             const dem5aLayer = viewer.imageryLayers.addImageryProvider(
                 new Cesium.UrlTemplateImageryProvider({
                     url: 'https://cyberjapandata.gsi.go.jp/xyz/dem5a/{z}/{x}/{y}.png',
                     credit: '国土地理院'
                 })
             );
-            dem5aLayer.show = false; // 初期非表示
+            dem5aLayer.show = false;
 
             // レイヤー切り替えのイベントリスナーを設定
+            // 標準地図は初期ベースマップなので、このトグルは航空写真との切り替えに使う
             document.getElementById('baseMapToggle').addEventListener('change', function() {
-                baseMapLayer.show = this.checked;
-                // 標準地図がオンになったら航空写真をオフにする
+                // 標準地図はデフォルトで表示されているため、ここでは航空写真との排他制御のみ
+                // baseMapLayer.show = this.checked; // この行は不要
                 if (this.checked) {
+                    viewer.imageryLayers.get(0).show = true; // デフォルトの標準地図を表示
                     aerialPhotoLayer.show = false;
                     document.getElementById('aerialPhotoToggle').checked = false;
+                } else {
+                    viewer.imageryLayers.get(0).show = false; // デフォルトの標準地図を非表示
                 }
             });
 
             document.getElementById('aerialPhotoToggle').addEventListener('change', function() {
                 aerialPhotoLayer.show = this.checked;
-                // 航空写真がオンになったら標準地図をオフにする
                 if (this.checked) {
-                    baseMapLayer.show = false;
+                    viewer.imageryLayers.get(0).show = false; // 標準地図を非表示
                     document.getElementById('baseMapToggle').checked = false;
+                } else {
+                    viewer.imageryLayers.get(0).show = true; // 標準地図を再表示 (航空写真がオフになったら)
+                    document.getElementById('baseMapToggle').checked = true;
                 }
             });
 
@@ -243,16 +228,8 @@
                 dem5aLayer.show = this.checked;
             });
 
-            // 建物データについて:
-            // 地理院地図の3D表示は独自の建物データを使用している可能性があります。
-            // CesiumJSで一般的な3D建物データを表示するには、3D Tiles形式のデータが必要です。
-            // 現在、地理院地図が公開している一般的な3D Tiles形式の建物データは確認できませんでした。
-            // もし建物データを追加したい場合は、OpenStreetMapのデータから3D Tilesを生成するか、
-            // 他の公開されている3D建物データセットを探す必要があります。
-            // この例では、地理院地図のImageryLayerとして提供されているものに限定しています。
         } catch (error) {
-            console.error('Failed to initialize Cesium Viewer:', error); // エラーログ
-            // ユーザーにエラーメッセージを表示
+            console.error('Failed to initialize Cesium Viewer:', error);
             const errorDiv = document.createElement('div');
             errorDiv.style.position = 'absolute';
             errorDiv.style.top = '50%';
@@ -265,7 +242,7 @@
             errorDiv.style.zIndex = '100';
             errorDiv.innerText = '地図の読み込み中にエラーが発生しました。ブラウザのコンソールをご確認ください。';
             document.body.appendChild(errorDiv);
-            document.getElementById('loadingOverlay').style.display = 'none'; // エラー時はローディングを非表示
+            document.getElementById('loadingOverlay').style.display = 'none';
         }
     </script>
 </body>
