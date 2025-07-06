@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Cesium + OSM</title>
+  <title>Cesium + OpenStreetMap</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.112/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.112/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <style>
@@ -19,8 +20,9 @@
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: new Cesium.EllipsoidTerrainProvider(), // 地形なし
       imageryProvider: new Cesium.UrlTemplateImageryProvider({
-        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        credit: '© OpenStreetMap contributors'
+        url : 'https://a.tile.openstreetmap.org/'
+        //url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        //credit: '© OpenStreetMap contributors'
       }),
       baseLayerPicker: false,
       timeline: false,
