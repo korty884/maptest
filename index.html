@@ -1,30 +1,72 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>3D Map with Cesium</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <style>
-    html, body, #cesiumContainer {
-      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
-    }
-  </style>
-</head>
-<body>
-  <div id="cesiumContainer"></div>
-  <script>
-    // Cesium ionのアクセストークン
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNTExZDBlNy05NWM2LTQ2NDgtYTk0My0xM2IyY2M4NWY0Y2MiLCJpZCI6MzE4Njc2LCJpYXQiOjE3NTE2Nzk0NTl9.kafr-dQhb-YDcWDVKNp1A6Mf5xzO_92HjczNLDmxlGE';
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <meta name="description" content="Use Viewer to start building new applications or easily embed Cesium into existing applications.">
+    <meta name="cesium-sandcastle-labels" content="Beginner, Showcases">
+    <title>Cesium Demo</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+    <script src="../CesiumUnminified/Cesium.js"></script>
+    <script>window.CESIUM_BASE_URL = "../CesiumUnminified/";</script>
+  </head>
+  <body
+    class="sandcastle-loading"
+    data-sandcastle-bucket="bucket-requirejs.html"
+  >
+<style>
+  @import url(../templates/bucket.css);
+</style>
+<div id="cesiumContainer" class="fullSize"></div>
+<div id="loadingOverlay">
+  <h1>Loading...</h1>
+</div>
+<div id="toolbar"></div>
+<script id="cesium_sandcastle_script">
+window.startup = async function (Cesium) {
+    'use strict';
+//Sandcastle_Begin
+// Grant CesiumJS access to your ion assets
+Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNTExZDBlNy05NWM2LTQ2NDgtYTk0My0xM2IyY2M4NWY0Y2MiLCJpZCI6MzE4Njc2LCJpYXQiOjE3NTE2Nzk0NTl9.kafr-dQhb-YDcWDVKNp1A6Mf5xzO_92HjczNLDmxlGE";
 
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.createWorldTerrain(),
-    });
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  // This is a global 3D Tiles tileset so disable the
+  // globe to prevent it from interfering with the data
+  globe: false,
+  // Disabling the globe means we need to manually
+  // re-enable the atmosphere
+  skyAtmosphere: new Cesium.SkyAtmosphere(),
+  // 2D and Columbus View are not currently supported
+  // for global 3D Tiles tilesets
+  sceneModePicker: false,
+  // Imagery layers are not currently supported for
+  // global 3D Tiles tilesets
+  baseLayerPicker: false,
+  // Use the Google geocoder instead of Bing
+  geocoder: Cesium.IonGeocodeProviderType.GOOGLE,
+});
 
-    // 東京の位置にカメラを移動
-    viewer.camera.flyTo({
-      destination : Cesium.Cartesian3.fromDegrees(139.6917, 35.6895, 1000.0)
+try {
+  const tileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
+  viewer.scene.primitives.add(tileset);
+} catch (error) {
+  console.log(error);
+}
+//Sandcastle_End
+    Sandcastle.finishedLoading();
+};
+if (typeof Cesium !== 'undefined') {
+    window.startupCalled = true;
+    window.startup(Cesium).catch((error) => {
+      "use strict";
+      console.error(error);
     });
-  </script>
+}
+</script>
 </body>
 </html>
